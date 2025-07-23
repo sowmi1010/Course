@@ -1,9 +1,9 @@
 import Topic from "../models/Topic.js";
 
-//Create Topic
+// Create Topic
 export const createTopic = async (req, res) => {
   try {
-    const { title, subtitle, language, code, htmlCode, cssCode, jsCode } = req.body;
+    const { title, subtitle, language, code, htmlCode, cssCode, jsCode, subtopics } = req.body;
 
     const newTopic = await Topic.create({
       title,
@@ -13,6 +13,7 @@ export const createTopic = async (req, res) => {
       htmlCode: language === "javascript" ? htmlCode : undefined,
       cssCode: language === "javascript" ? cssCode : undefined,
       jsCode: language === "javascript" ? jsCode : undefined,
+      subtopics,
       createdBy: req.user ? req.user._id : null,
     });
 
@@ -22,12 +23,12 @@ export const createTopic = async (req, res) => {
   }
 };
 
-//Update Topic
+// Update Topic
 export const updateTopic = async (req, res) => {
   try {
-    const { title, subtitle, language, code, htmlCode, cssCode, jsCode } = req.body;
+    const { title, subtitle, language, code, htmlCode, cssCode, jsCode, subtopics } = req.body;
 
-    const setData = { title, subtitle, language };
+    const setData = { title, subtitle, language, subtopics };
     const unsetData = {};
 
     if (language === "javascript") {
@@ -56,7 +57,7 @@ export const updateTopic = async (req, res) => {
   }
 };
 
-//Delete Topic
+// Delete Topic
 export const deleteTopic = async (req, res) => {
   try {
     const topic = await Topic.findByIdAndDelete(req.params.id);
@@ -67,7 +68,7 @@ export const deleteTopic = async (req, res) => {
   }
 };
 
-//Get Topics by Language
+// Get Topics by Language
 export const getTopicsByLanguage = async (req, res) => {
   try {
     const topics = await Topic.find({ language: req.params.language }).sort({ createdAt: 1 });
@@ -77,7 +78,7 @@ export const getTopicsByLanguage = async (req, res) => {
   }
 };
 
-//Get Topic by ID
+// Get Topic by ID
 export const getTopicById = async (req, res) => {
   try {
     const topic = await Topic.findById(req.params.id);
@@ -88,7 +89,7 @@ export const getTopicById = async (req, res) => {
   }
 };
 
-//Toggle favorite
+// Toggle favorite
 export const toggleFavorite = async (req, res) => {
   try {
     const topic = await Topic.findById(req.params.id);
@@ -103,7 +104,7 @@ export const toggleFavorite = async (req, res) => {
   }
 };
 
-//Get all favorites
+// Get all favorites
 export const getFavorites = async (req, res) => {
   try {
     const favorites = await Topic.find({ isFavorite: true }).sort({ createdAt: -1 });

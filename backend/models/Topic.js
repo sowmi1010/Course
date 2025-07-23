@@ -1,9 +1,23 @@
+// models/Topic.js
 import mongoose from "mongoose";
+
+const exampleSchema = new mongoose.Schema({
+  title: String,
+  description: String,
+  code: String,
+});
+
+const subtopicSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: String,
+  syntax: String,
+  examples: [exampleSchema],
+});
 
 const topicSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
-    subtitle: { type: String },
+    subtitle: String,
     language: {
       type: String,
       required: true,
@@ -21,14 +35,14 @@ const topicSchema = new mongoose.Schema(
         "mysql",
       ],
     },
-    code: { type: String },
-    htmlCode: { type: String },
-    cssCode: { type: String },
-    jsCode: { type: String },
-    image: { type: String },
+    code: String,
+    htmlCode: String,
+    cssCode: String,
+    jsCode: String,
+    image: String,
+    subtopics: [subtopicSchema],
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-        isFavorite: { type: Boolean, default: false },
-
+    isFavorite: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import api from "../utils/api";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { coy } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { Listbox } from "@headlessui/react";
 
@@ -21,20 +20,10 @@ export default function TopicList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState(sortOptions[0]);
 
-  //Detect Dark Mode
-  const [isDarkMode, setIsDarkMode] = useState(
-    document.documentElement.classList.contains("dark")
-  );
-
   useEffect(() => {
-    const observer = new MutationObserver(() => {
-      setIsDarkMode(document.documentElement.classList.contains("dark"));
-    });
-    observer.observe(document.documentElement, { attributes: true });
-    return () => observer.disconnect();
-  }, []);
+    fetchTopics();
+  }, [language]);
 
-  //Fetch topics
   const fetchTopics = async () => {
     try {
       const { data } = await api.get(`/topics/${language}`);
@@ -45,11 +34,6 @@ export default function TopicList() {
     }
   };
 
-  useEffect(() => {
-    fetchTopics();
-  }, [language]);
-
-  //Search handler
   const handleSearch = (e) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
@@ -59,7 +43,6 @@ export default function TopicList() {
     setFilteredTopics(filtered);
   };
 
-  //Sort handler
   const handleSort = (selected) => {
     setSortOrder(selected);
     let sorted = [...filteredTopics];
@@ -77,18 +60,17 @@ export default function TopicList() {
     setFilteredTopics(sorted);
   };
 
-  //Toggle Favorite
   const toggleFavorite = async (id) => {
     try {
-      const { data } = await api.patch(`/topics/favorite/${id}`);
+      await api.patch(`/topics/favorite/${id}`);
       setTopics((prev) =>
         prev.map((t) =>
-          t._id === id ? { ...t, isFavorite: data.topic.isFavorite } : t
+          t._id === id ? { ...t, isFavorite: !t.isFavorite } : t
         )
       );
       setFilteredTopics((prev) =>
         prev.map((t) =>
-          t._id === id ? { ...t, isFavorite: data.topic.isFavorite } : t
+          t._id === id ? { ...t, isFavorite: !t.isFavorite } : t
         )
       );
     } catch (error) {
@@ -108,45 +90,42 @@ export default function TopicList() {
   };
 
   return (
-    <div className="p-6 bg-white dark:bg-gray-900 rounded-lg shadow transition-colors">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-100">
-        {language.toUpperCase()} Topics
-      </h2>
+    <div className="p-6 bg-white rounded-lg shadow max-w-6xl mx-auto">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-3xl font-bold text-gray-800">
+          {language.toUpperCase()} Topics
+        </h2>
+        <Link
+          to={`/topics/add/${language}`}
+          className="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2 rounded-lg font-semibold shadow transition"
+        >
+          + Add Topic
+        </Link>
+      </div>
 
-      {/* Add Topic */}
-      <Link
-        to={`/topics/add/${language}`}
-        className="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2 rounded-lg font-semibold shadow mb-4 inline-block transition"
-      >
-        + Add Topic
-      </Link>
-
-      {/* Search */}
-      <input
-        type="text"
-        placeholder="Search topics..."
-        value={searchTerm}
-        onChange={handleSearch}
-        className="border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-4 py-2 mb-4 rounded w-full focus:outline-none focus:ring-2 focus:ring-orange-500"
-      />
-
-      {/*Custom Dropdown using Headless UI */}
-      <div className="mb-6">
+      {/* Search + Sort */}
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <input
+          type="text"
+          placeholder="Search topics..."
+          value={searchTerm}
+          onChange={handleSearch}
+          className="border border-gray-300 px-4 py-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-orange-500"
+        />
         <Listbox value={sortOrder} onChange={handleSort}>
-          <div className="relative">
-            <Listbox.Button className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded px-4 py-2 text-left text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500">
+          <div className="relative w-full md:w-64">
+            <Listbox.Button className="w-full bg-white border border-gray-300 rounded px-4 py-2 text-left text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-500">
               {sortOrder.label}
             </Listbox.Button>
-            <Listbox.Options className="absolute mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded shadow-lg z-10">
+            <Listbox.Options className="absolute mt-1 w-full bg-white border border-gray-300 rounded shadow-lg z-10">
               {sortOptions.map((option) => (
                 <Listbox.Option
                   key={option.value}
                   value={option}
                   className={({ active }) =>
                     `cursor-pointer px-4 py-2 ${
-                      active
-                        ? "bg-orange-500 text-white"
-                        : "text-gray-800 dark:text-gray-100"
+                      active ? "bg-orange-500 text-white" : "text-gray-800"
                     }`
                   }
                 >
@@ -158,73 +137,91 @@ export default function TopicList() {
         </Listbox>
       </div>
 
+      {/* Topics List */}
       {filteredTopics.length === 0 ? (
-        <p className="text-gray-500 dark:text-gray-400">No topics found.</p>
+        <p className="text-gray-500">No topics found.</p>
       ) : (
-        <ul className="space-y-4">
-          {filteredTopics.map((topic) => (
-            <li
-              key={topic._id}
-              className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow hover:shadow-lg transition"
-            >
-              {/* Title + Actions */}
-              <div className="flex justify-between items-center mb-3">
-                <span className="font-bold text-lg text-gray-800 dark:text-gray-100">
-                  {topic.title}
-                </span>
-                <div className="flex items-center gap-3">
-                  {/* Favorite Button */}
-                  <button
-                    onClick={() => toggleFavorite(topic._id)}
-                    className="text-red-500 text-xl hover:scale-110 transition"
-                    title="Add to Favorites"
-                  >
-                    {topic.isFavorite ? <FaHeart /> : <FaRegHeart />}
-                  </button>
+        <ul className="grid md:grid-cols-2 gap-6">
+          {filteredTopics.map((topic) => {
+            const hasCode =
+              topic.language === "javascript"
+                ? topic.htmlCode || topic.cssCode || topic.jsCode
+                : topic.code;
+
+            return (
+              <li
+                key={topic._id}
+                className="bg-gray-50 hover:bg-white p-5 rounded-lg shadow-md hover:shadow-lg transition"
+              >
+                {/* Title & Actions */}
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="font-bold text-xl text-gray-800">
+                    {topic.title}
+                  </h3>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => toggleFavorite(topic._id)}
+                      className="text-red-500 text-2xl hover:scale-110 transition"
+                      title="Add to Favorites"
+                    >
+                      {topic.isFavorite ? <FaHeart /> : <FaRegHeart />}
+                    </button>
+                  </div>
+                </div>
+
+                <p className="text-gray-600 mb-3">{topic.subtitle}</p>
+
+                {/* Action Buttons */}
+                <div className="flex gap-4 mb-4 text-sm font-medium">
                   <Link
                     to={`/topics/view/${topic._id}`}
-                    className="text-blue-500 hover:text-blue-600"
+                    className="text-blue-500 hover:text-blue-700"
                   >
                     View
                   </Link>
                   <Link
                     to={`/topics/edit/${topic._id}`}
-                    className="text-green-500 hover:text-green-600"
+                    className="text-green-500 hover:text-green-700"
                   >
                     Edit
                   </Link>
                   <button
                     onClick={() => handleDelete(topic._id)}
-                    className="text-red-500 hover:text-red-600"
+                    className="text-red-500 hover:text-red-700"
                   >
                     Delete
                   </button>
                 </div>
-              </div>
 
-              {/*Syntax Highlighted Snippet */}
-              <div className="rounded overflow-x-auto border border-gray-300 dark:border-gray-700">
-                <SyntaxHighlighter
-                  language={
-                    topic.language === "javascript" ? "html" : topic.language
-                  }
-                  style={isDarkMode ? atomDark : coy}
-                  customStyle={{
-                    maxHeight: "150px",
-                    fontSize: "14px",
-                    borderRadius: "6px",
-                    margin: 0,
-                  }}
-                >
-                  {topic.language === "javascript"
-                    ? `${topic.htmlCode || ""}\n${topic.cssCode || ""}\n${
-                        topic.jsCode || ""
-                      }`
-                    : topic.code || ""}
-                </SyntaxHighlighter>
-              </div>
-            </li>
-          ))}
+                {/* Code Preview */}
+                {hasCode && (
+                  <div className="rounded overflow-x-auto border border-gray-300">
+                    <SyntaxHighlighter
+                      language={
+                        topic.language === "javascript"
+                          ? "html"
+                          : topic.language
+                      }
+                      style={vscDarkPlus}
+                      customStyle={{
+                        maxHeight: "200px",
+                        fontSize: "14px",
+                        borderRadius: "6px",
+                        margin: 0,
+                        background: "#1e1e1e",
+                      }}
+                    >
+                      {topic.language === "javascript"
+                        ? `${topic.htmlCode || ""}\n${topic.cssCode || ""}\n${
+                            topic.jsCode || ""
+                          }`
+                        : topic.code || ""}
+                    </SyntaxHighlighter>
+                  </div>
+                )}
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

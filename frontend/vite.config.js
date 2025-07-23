@@ -7,7 +7,6 @@ export default defineConfig({
     react(),
     tailwindcss({
       config: {
-        darkMode: "class", // ✅ Enables class-based dark mode
         content: [
           "./index.html",
           "./src/**/*.{js,ts,jsx,tsx}", // ✅ Add paths to scan

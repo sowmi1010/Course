@@ -6,8 +6,8 @@ import {
   getTopicsByLanguage,
   getTopicById,
   deleteTopic,
-  toggleFavorite, 
-  getFavorites    
+  toggleFavorite,
+  getFavorites,
 } from "../controllers/topicController.js";
 
 const router = express.Router();
@@ -18,7 +18,7 @@ router.delete("/:id", protect, deleteTopic);
 router.get("/:language", protect, getTopicsByLanguage);
 router.get("/view/:id", protect, getTopicById);
 
-//Favorites Routes
+// Favorites
 router.patch("/favorite/:id", protect, toggleFavorite);
 router.get("/favorites/all", protect, getFavorites);
 

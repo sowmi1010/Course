@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 
-export default function Sidebar({ isDarkMode }) {
+export default function Sidebar() {
   const location = useLocation();
 
   const menuItems = [
@@ -10,17 +10,9 @@ export default function Sidebar({ isDarkMode }) {
   ];
 
   return (
-    <aside
-      className={`w-64 h-screen flex flex-col shadow-lg ${
-        isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-800"
-      }`}
-    >
+    <aside className="w-64 h-screen flex flex-col shadow-lg bg-white text-gray-800">
       {/* Logo */}
-      <div
-        className={`p-4 text-2xl font-bold text-center ${
-          isDarkMode ? "text-orange-400" : "text-orange-600"
-        }`}
-      >
+      <div className="p-4 text-2xl font-bold text-center text-orange-600">
         MyDocs
       </div>
 
@@ -33,11 +25,7 @@ export default function Sidebar({ isDarkMode }) {
                 to={item.path}
                 className={`block px-4 py-2 rounded-md font-medium transition ${
                   location.pathname === item.path
-                    ? isDarkMode
-                      ? "bg-orange-500 text-white"
-                      : "bg-orange-500 text-white"
-                    : isDarkMode
-                    ? "hover:bg-gray-800"
+                    ? "bg-orange-500 text-white"
                     : "hover:bg-gray-100"
                 }`}
               >
@@ -49,7 +37,7 @@ export default function Sidebar({ isDarkMode }) {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 text-center text-sm opacity-70">
+      <div className="p-4 text-center text-sm text-gray-500">
         © 2025 MyDocs
       </div>
     </aside>

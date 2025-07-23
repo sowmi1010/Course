@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { FaCode } from "react-icons/fa";
 
 export default function Dashboard() {
   const languages = [
@@ -16,19 +17,26 @@ export default function Dashboard() {
   ];
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-        Dashboard
+    <div className="p-6">
+      {/* Title */}
+      <h1 className="text-4xl font-extrabold mb-6 text-gray-900 text-center">
+        Developer Dashboard
       </h1>
+      <p className="text-gray-600 mb-8 text-center text-lg">
+        Select a topic to explore detailed tutorials and examples.
+      </p>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+      {/* Language Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
         {languages.map((lang) => (
           <Link
             key={lang.name}
             to={lang.path}
-            className="bg-white dark:bg-gray-800 shadow hover:shadow-lg rounded-xl p-6 text-center font-semibold text-lg transition transform hover:scale-105 
-                       text-gray-800 dark:text-gray-100 border border-orange-500 hover:bg-orange-500 hover:text-white dark:hover:bg-orange-500"
+            className="bg-white shadow-md hover:shadow-2xl rounded-xl p-6 flex flex-col items-center justify-center gap-3
+                       text-center font-semibold text-lg transition-all transform hover:scale-105 
+                       text-gray-800 border border-gray-200 hover:bg-orange-500 hover:text-white duration-300"
           >
+            <FaCode className="text-3xl text-orange-500 group-hover:text-white" />
             {lang.name}
           </Link>
         ))}
